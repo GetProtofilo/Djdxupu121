@@ -2,375 +2,509 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS | Pro Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NEXUS | DeFi Console</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #050505;
-            --panel: #0a0a0a;
-            --accent: #00ffa3;
-            --accent-dim: rgba(0, 255, 163, 0.1);
-            --red: #ff4757;
-            --border: rgba(255, 255, 255, 0.08);
-            --text-main: #ffffff;
-            --text-dim: #666;
+            --bg: #000000;
+            --card: #111111;
+            --border: #222222;
+            --primary: #00ff9d; /* Neon Green */
+            --primary-dim: rgba(0, 255, 157, 0.1);
+            --text: #ffffff;
+            --text-gray: #888888;
+            --danger: #ff3b30;
+            --safe-area-bottom: env(safe-area-inset-bottom);
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: 'Inter', sans-serif; /* Standard modern font */
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
+            display: flex;
+            flex-direction: column;
             overflow: hidden;
         }
 
-        /* ---------------- Layout ---------------- */
-        .dashboard {
-            width: 1100px;
-            height: 700px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8);
-            position: relative;
-            z-index: 2;
-        }
-
-        /* ---------------- Sidebar ---------------- */
-        .sidebar {
-            padding: 2rem;
-            border-right: 1px solid var(--border);
+        /* --- Header --- */
+        header {
+            padding: 15px 20px;
             display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .balance-card {
-            background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-            border-radius: 16px;
-        }
-
-        .label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .amount { font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; }
-
-        .btn {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 1rem;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.2s;
-            width: 100%;
-        }
-        .btn:hover { box-shadow: 0 0 20px var(--accent-dim); transform: translateY(-2px); }
-        .btn:active { transform: scale(0.98); }
-
-        .log-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.8rem;
-            color: var(--text-dim);
-            border-top: 1px solid var(--border);
-            padding-top: 1rem;
-        }
-
-        .log-item { margin-bottom: 8px; border-left: 2px solid var(--accent); padding-left: 10px; animation: slideIn 0.3s; }
-
-        /* ---------------- Main Chart Area ---------------- */
-        .main {
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        .chart-container {
-            flex-grow: 1;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        canvas { width: 100%; height: 100%; }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-
-        .trade-box {
-            background: var(--border);
-            padding: 1.5rem;
-            border-radius: 16px;
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .trade-box:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
-
-        /* ---------------- Modal & Overlay ---------------- */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
             background: rgba(0,0,0,0.8);
             backdrop-filter: blur(10px);
-            z-index: 100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s;
+            z-index: 10;
         }
-        
-        .modal-overlay.active { opacity: 1; pointer-events: all; }
 
-        .modal {
-            background: #111;
-            border: 1px solid var(--border);
-            padding: 2rem;
-            border-radius: 20px;
-            width: 350px;
+        .brand { font-weight: 900; letter-spacing: -0.5px; font-size: 1.2rem; }
+        .brand span { color: var(--primary); }
+        .status-badge { 
+            background: var(--primary-dim); 
+            color: var(--primary); 
+            padding: 4px 8px; 
+            border-radius: 4px; 
+            font-size: 0.7rem; 
+            font-weight: 700;
+            border: 1px solid var(--primary);
+        }
+
+        /* --- Main Content Areas --- */
+        main {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .tab-content {
+            display: none; /* Hidden by default */
+            padding: 20px;
+            padding-bottom: 100px;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Components --- */
+        .balance-hero {
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 30px 0;
         }
+        .balance-label { color: var(--text-gray); font-size: 0.9rem; margin-bottom: 5px; }
+        .balance-amount { font-size: 3rem; font-weight: 800; letter-spacing: -1px; }
 
-        .modal-overlay.active .modal { transform: scale(1); }
-
-        .spinner {
-            width: 40px; height: 40px;
-            border: 3px solid var(--border);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            margin: 0 auto 1rem;
-            animation: spin 1s linear infinite;
+        .chart-box {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(180deg, rgba(0,255,157,0.05) 0%, rgba(0,0,0,0) 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
         }
+        canvas { width: 100%; height: 100%; }
 
-        /* ---------------- Animations ---------------- */
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } }
+        .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; display: flex; justify-content: space-between; }
+
+        /* List Items */
+        .coin-list { display: flex; flex-direction: column; gap: 10px; }
+        .coin-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.2s;
+        }
+        .coin-item:active { background: #222; transform: scale(0.98); }
         
-        .profit-flash { animation: flash 1s; }
-        @keyframes flash { 
-            0% { box-shadow: 0 0 0 rgba(0,255,163,0); }
-            50% { box-shadow: 0 0 50px rgba(0,255,163,0.5); border-color: var(--accent); }
-            100% { box-shadow: 0 0 0 rgba(0,255,163,0); }
+        .coin-info { display: flex; align-items: center; gap: 12px; }
+        .coin-icon { width: 40px; height: 40px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .coin-ticker { font-weight: 700; }
+        .coin-name { font-size: 0.8rem; color: var(--text-gray); }
+        
+        .coin-action { text-align: right; }
+        .coin-change { color: var(--primary); font-size: 0.85rem; font-weight: 600; }
+
+        /* Inputs & Forms */
+        .input-group { margin-bottom: 20px; }
+        .input-label { display: block; color: var(--text-gray); margin-bottom: 8px; font-size: 0.9rem; }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 1rem;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        .btn {
+            width: 100%;
+            background: var(--primary);
+            color: black;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .btn:active { opacity: 0.8; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: white; }
+        
+        .deposit-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .deposit-option {
+            background: var(--card); border: 1px solid var(--border); padding: 15px;
+            border-radius: 10px; text-align: center; cursor: pointer; font-weight: 600;
+        }
+        .deposit-option.selected { border-color: var(--primary); color: var(--primary); background: rgba(0,255,157,0.05); }
+
+        /* --- Bottom Navigation --- */
+        nav {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            padding: 10px 0 calc(10px + var(--safe-area-bottom)) 0;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            z-index: 100;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: var(--text-gray);
+            font-size: 0.7rem;
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+        }
+        .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 4px; }
+        .nav-item.active { color: var(--primary); }
+
+        /* --- Log Overlay --- */
+        .toast {
+            position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
+            background: rgba(20,20,20,0.95); border: 1px solid var(--primary);
+            color: var(--primary); padding: 10px 20px; border-radius: 20px;
+            font-size: 0.8rem; z-index: 999; display: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
 
     </style>
 </head>
 <body>
 
-    <div class="modal-overlay active" id="connectModal">
-        <div class="modal">
-            <div class="spinner" id="modalSpinner"></div>
-            <h3 id="modalTitle">Connecting to Wallet...</h3>
-            <p id="modalSub" style="color: #666; font-size: 0.9rem;">Verifying signature...</p>
+    <header>
+        <div class="brand">NEXUS<span>PRO</span></div>
+        <div class="status-badge" id="walletStatus">NOT CONNECTED</div>
+    </header>
+
+    <div class="toast" id="toast">Transaction Successful</div>
+
+    <main>
+        <div id="tab-home" class="tab-content active">
+            <div class="balance-hero">
+                <div class="balance-label">TOTAL EQUITY</div>
+                <div class="balance-amount" id="displayBalance">0.00 SOL</div>
+            </div>
+
+            <div class="chart-box">
+                <canvas id="mainChart"></canvas>
+            </div>
+
+            <div class="section-title">
+                <span>Your Assets</span>
+                <span style="font-size:0.8rem; color:var(--text-gray)">24h Change</span>
+            </div>
+
+            <div class="coin-list" id="portfolioList">
+                <div class="coin-item">
+                    <div class="coin-info">
+                        <div class="coin-icon" style="background:#6c5ce7">S</div>
+                        <div>
+                            <div class="coin-ticker">SOL</div>
+                            <div class="coin-name">Solana</div>
+                        </div>
+                    </div>
+                    <div class="coin-action">
+                        <div>100%</div>
+                        <div class="coin-change">+2.4%</div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <div class="dashboard">
-        <aside class="sidebar">
-            <div class="logo">NEXUS PRO</div>
+        <div id="tab-trade" class="tab-content">
+            <div class="section-title">Market Opportunities</div>
+            <div class="coin-list" id="marketList">
+                <div class="coin-item" onclick="tradeCoin('BONK', 5)">
+                    <div class="coin-info">
+                        <div class="coin-icon" style="background:#e17055">B</div>
+                        <div>
+                            <div class="coin-ticker">BONK</div>
+                            <div class="coin-name">High Volatility</div>
+                        </div>
+                    </div>
+                    <div class="coin-action">
+                        <div class="btn-outline" style="padding: 5px 15px; border-radius: 6px; font-size:0.8rem">BUY</div>
+                        <div class="coin-change" style="margin-top:4px">+12%</div>
+                    </div>
+                </div>
+                <div class="coin-item" onclick="tradeCoin('WIF', 10)">
+                    <div class="coin-info">
+                        <div class="coin-icon" style="background:#00cec9">W</div>
+                        <div>
+                            <div class="coin-ticker">WIF</div>
+                            <div class="coin-name">Trending</div>
+                        </div>
+                    </div>
+                    <div class="coin-action">
+                        <div class="btn-outline" style="padding: 5px 15px; border-radius: 6px; font-size:0.8rem">BUY</div>
+                        <div class="coin-change" style="margin-top:4px">+45%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-create" class="tab-content">
+            <div class="section-title">Launch Token</div>
+            <p style="color:var(--text-gray); font-size:0.9rem; margin-bottom: 20px;">Deploy a new token on the testnet instantly.</p>
+
+            <div class="input-group">
+                <label class="input-label">Token Name</label>
+                <input type="text" id="tokenName" placeholder="e.g. Super Moon">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Ticker Symbol</label>
+                <input type="text" id="tokenTicker" placeholder="e.g. MOON" maxlength="5" style="text-transform: uppercase;">
+            </div>
             
-            <div class="balance-card">
-                <div class="label">Total Balance</div>
-                <div class="amount" id="displayBalance">0.00 SOL</div>
+            <button class="btn" onclick="createToken()">DEPLOY TOKEN (1.0 SOL)</button>
+        </div>
+
+        <div id="tab-wallet" class="tab-content">
+            <div class="section-title">Wallet Connection</div>
+            <div style="background:var(--card); padding:20px; border-radius:12px; border:1px solid var(--border); text-align:center; margin-bottom:20px;">
+                <div id="walletAddress" style="font-family:monospace; margin-bottom:10px; color:var(--text-gray);">0x...</div>
+                <button class="btn btn-outline" id="connectBtn" onclick="toggleConnect()">Connect Wallet</button>
             </div>
 
-            <button class="btn" onclick="deposit()">Deposit Funds</button>
-            <div class="log-area" id="logArea">
-                </div>
-        </aside>
-
-        <main class="main">
-            <div class="chart-container" id="chartBox">
-                <canvas id="marketChart"></canvas>
+            <div class="section-title">Deposit SOL</div>
+            <div class="deposit-grid">
+                <div class="deposit-option" onclick="selectDeposit(10)">10</div>
+                <div class="deposit-option" onclick="selectDeposit(50)">50</div>
+                <div class="deposit-option" onclick="selectDeposit(100)">100</div>
             </div>
+            <button class="btn" onclick="executeDeposit()">CONFIRM DEPOSIT</button>
 
-            <div class="controls">
-                <div class="trade-box" onclick="executeTrade('MEME')">
-                    <h3 style="margin:0">Buy $PEPE</h3>
-                    <p style="color: var(--text-dim); margin: 5px 0 0 0">High Volatility Pair</p>
-                </div>
-                <div class="trade-box" onclick="executeTrade('SOL')">
-                    <h3 style="margin:0">Buy $BONK</h3>
-                    <p style="color: var(--text-dim); margin: 5px 0 0 0">Trending +12%</p>
-                </div>
+            <div style="margin-top:30px; border-top:1px solid var(--border); padding-top:20px;">
+                 <div class="section-title">Transaction History</div>
+                 <div id="txLog" style="font-size:0.8rem; color:var(--text-gray); font-family:monospace;">
+                     </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
+
+    <nav>
+        <div class="nav-item active" onclick="switchTab('home')">
+            <i class="fas fa-chart-pie"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('trade')">
+            <i class="fas fa-bolt"></i>
+            <span>Market</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('create')">
+            <i class="fas fa-plus-circle"></i>
+            <span>Create</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('wallet')">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </div>
+    </nav>
 
     <script>
-        // ---------------- STATE ----------------
+        // --- STATE ---
         let balance = 0.00;
         let isConnected = false;
-        
-        // ---------------- CHART SETUP ----------------
-        const canvas = document.getElementById('marketChart');
-        const ctx = canvas.getContext('2d');
-        let chartData = [];
-        let width, height;
+        let selectedDeposit = 0;
+        let myTokens = [];
 
-        function resize() {
-            width = canvas.width = canvas.parentElement.offsetWidth;
-            height = canvas.height = canvas.parentElement.offsetHeight;
+        // --- TABS LOGIC ---
+        function switchTab(tabId) {
+            // Update Tab Bar
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            // Show Content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
         }
-        window.addEventListener('resize', resize);
-        resize();
 
-        // Initialize empty chart data
-        for(let i=0; i<50; i++) chartData.push(height/2);
+        // --- WALLET & DEPOSIT LOGIC ---
+        function toggleConnect() {
+            const btn = document.getElementById('connectBtn');
+            const badge = document.getElementById('walletStatus');
+            const addr = document.getElementById('walletAddress');
 
-        function drawChart() {
-            ctx.clearRect(0, 0, width, height);
-            
-            // Grid lines
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.beginPath();
-            for(let i=0; i<height; i+=40) { ctx.moveTo(0, i); ctx.lineTo(width, i); }
-            ctx.stroke();
-
-            // The Line
-            ctx.beginPath();
-            ctx.moveTo(0, chartData[0]);
-            
-            // Smooth curve
-            for (let i = 1; i < chartData.length - 2; i++) {
-                const xc = (i * (width/50) + (i + 1) * (width/50)) / 2;
-                const yc = (chartData[i] + chartData[i + 1]) / 2;
-                ctx.quadraticCurveTo(i * (width/50), chartData[i], xc, yc);
-            }
-            
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = '#00ffa3';
-            ctx.shadowColor = '#00ffa3';
-            ctx.shadowBlur = 15;
-            ctx.stroke();
-            
-            // Fill area under line
-            ctx.lineTo(width, height);
-            ctx.lineTo(0, height);
-            ctx.fillStyle = 'rgba(0, 255, 163, 0.05)';
-            ctx.fill();
-
-            requestAnimationFrame(drawChart);
-        }
-        drawChart();
-
-        // Simulate live market movement
-        setInterval(() => {
-            // Shift data left
-            chartData.shift();
-            // Add new random point (small fluctuation)
-            let last = chartData[chartData.length-1];
-            let noise = (Math.random() - 0.5) * 10;
-            // Keep within bounds
-            let newPoint = Math.max(20, Math.min(height-20, last + noise));
-            chartData.push(newPoint);
-        }, 100);
-
-        // ---------------- LOGIC ----------------
-
-        // 1. Fake Wallet Connect Sequence
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('modalTitle').innerText = "Wallet Connected";
-                document.getElementById('modalSub').innerText = "0x7f...3A92";
-                document.getElementById('modalSpinner').style.borderColor = "#00ffa3";
-                document.getElementById('modalSpinner').style.animation = "none";
-                
+            if (!isConnected) {
+                btn.innerText = "Connecting...";
                 setTimeout(() => {
-                    document.getElementById('connectModal').classList.remove('active');
                     isConnected = true;
-                    log("Wallet connected: Phantom");
+                    btn.innerText = "Disconnect";
+                    btn.style.borderColor = "var(--danger)";
+                    btn.style.color = "var(--danger)";
+                    badge.innerText = "LIVE TESTNET";
+                    badge.style.background = "rgba(0,255,157,0.2)";
+                    addr.innerText = "8xPt...9jK2";
+                    addr.style.color = "var(--primary)";
+                    showToast("Wallet Connected");
                 }, 1000);
-            }, 2000); // 2 second delay for realism
-        };
+            } else {
+                isConnected = false;
+                btn.innerText = "Connect Wallet";
+                btn.style.borderColor = "var(--border)";
+                btn.style.color = "white";
+                badge.innerText = "NOT CONNECTED";
+                badge.style.background = "transparent";
+                addr.innerText = "0x...";
+                addr.style.color = "var(--text-gray)";
+            }
+        }
 
-        function updateUI() {
+        function selectDeposit(amt) {
+            selectedDeposit = amt;
+            // Visual feedback
+            document.querySelectorAll('.deposit-option').forEach(el => {
+                el.classList.remove('selected');
+                if (el.innerText == amt) el.classList.add('selected');
+            });
+        }
+
+        function executeDeposit() {
+            if (!isConnected) return showToast("Connect Wallet First!");
+            if (selectedDeposit === 0) return showToast("Select Amount");
+
+            balance += selectedDeposit;
+            updateBalance();
+            logTx(`Deposited ${selectedDeposit} SOL`);
+            showToast(`Received ${selectedDeposit} SOL`);
+        }
+
+        function updateBalance() {
             document.getElementById('displayBalance').innerText = balance.toFixed(2) + " SOL";
         }
 
-        function log(msg) {
-            const area = document.getElementById('logArea');
-            const div = document.createElement('div');
-            div.className = 'log-item';
-            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            area.prepend(div);
+        // --- TRADE & CREATE LOGIC ---
+        function tradeCoin(ticker, cost) {
+            if (!isConnected) return showToast("Connect Wallet First!");
+            if (balance < cost) return showToast("Insufficient Balance");
+
+            balance -= cost;
+            updateBalance();
+            showToast(`Bought ${ticker} for ${cost} SOL`);
+            logTx(`Swap SOL -> ${ticker}`);
+
+            // Fake Profit logic
+            setTimeout(() => {
+                let profit = cost * (1.2 + Math.random()); // 20% to 120% profit
+                balance += profit;
+                updateBalance();
+                showToast(`SOLD ${ticker}! Profit: +${(profit-cost).toFixed(2)} SOL`);
+                logTx(`Profit ${ticker}: +${(profit-cost).toFixed(2)} SOL`);
+                triggerChartSpike();
+            }, 2000);
         }
 
-        function deposit() {
-            if(!isConnected) return;
-            let amount = 10;
-            balance += amount;
-            updateUI();
-            log(`Deposited ${amount} SOL`);
-        }
+        function createToken() {
+            if (!isConnected) return showToast("Connect Wallet First!");
+            const name = document.getElementById('tokenName').value;
+            const ticker = document.getElementById('tokenTicker').value.toUpperCase();
 
-        function executeTrade(pair) {
-            if(balance < 2) {
-                alert("Insufficient funds! Deposit first.");
-                return;
-            }
+            if (!name || !ticker) return showToast("Enter Token Details");
+            if (balance < 1) return showToast("Need 1 SOL to Deploy");
 
-            // Deduct cost
-            balance -= 2;
-            updateUI();
-            log(`Bought ${pair} for 2.00 SOL...`);
-
-            // Flash visual effect
-            document.getElementById('chartBox').style.opacity = "0.7";
+            balance -= 1;
+            updateBalance();
+            showToast("Deploying Contract...");
 
             setTimeout(() => {
-                // Simulate PROFIT
-                let profit = 2 + (Math.random() * 2); // 2 to 4 SOL return
-                balance += profit;
-                updateUI();
-                log(`Sold ${pair} | Profit: +${(profit-2).toFixed(2)} SOL 🚀`);
-                
-                // Trigger visual spike in chart
-                triggerChartSpike();
-                
-                // CSS flash
-                document.getElementById('chartBox').classList.add('profit-flash');
-                document.getElementById('chartBox').style.opacity = "1";
-                setTimeout(() => document.getElementById('chartBox').classList.remove('profit-flash'), 1000);
+                showToast(`${ticker} Launched Successfully!`);
+                addTokenToMarket(name, ticker);
             }, 1500);
         }
 
-        function triggerChartSpike() {
-            // Force the last 10 points of the chart to go UP
-            let last = chartData[chartData.length-1];
-            for(let i=40; i<50; i++) {
-                chartData[i] = last - (i-40) * 10; // Move Y up (which is lower value in canvas)
-            }
+        function addTokenToMarket(name, ticker) {
+            // Add to Market List
+            const market = document.getElementById('marketList');
+            const color = '#' + Math.floor(Math.random()*16777215).toString(16);
+            
+            const html = `
+                <div class="coin-item" onclick="tradeCoin('${ticker}', 5)">
+                    <div class="coin-info">
+                        <div class="coin-icon" style="background:${color}">${ticker[0]}</div>
+                        <div>
+                            <div class="coin-ticker">${ticker}</div>
+                            <div class="coin-name">${name}</div>
+                        </div>
+                    </div>
+                    <div class="coin-action">
+                        <div class="btn-outline" style="padding: 5px 15px; border-radius: 6px; font-size:0.8rem">BUY</div>
+                        <div class="coin-change" style="margin-top:4px; color:var(--primary)">NEW</div>
+                    </div>
+                </div>
+            `;
+            market.insertAdjacentHTML('afterbegin', html);
         }
-    </script>
-</body>
-</html>
+
+        // --- UTILS ---
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        function logTx(msg) {
+            const log = document.getElementById('txLog');
+            log.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + log.innerHTML;
+        }
+
+        // --- CHART (Canvas) ---
+        const canvas = document.getElementById('mainChart');
+        const ctx = canvas.getContext('2d');
+        let dataPoints = new Array(50).fill(100);
+
+        function resizeChart() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+        }
+        window.addEventListener('resize', resizeChart);
+        resizeChart();
+
+        function draw() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            const w = canvas.width;
+            const h = canvas.height;
+            
+            ctx.beginPath();
+            ctx.moveTo(0, h/2);
+            
+            for(let i=0; i<dataPoints.length; i++) {
+                const x = (i / (dataPoints.length-1)) * w;
+                const y = h - (dataPoints[i] / 200 * h); // Scale
+                ctx.lineTo(x, y);
+            }
+
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#00ff9d';
+            ctx.shadowColor = '#00ff9d';
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+
+            // Animate data
+            dataPoints.shift();
+            let last = dataPoints[dataPoints.length-1];
+            let noise = (Math.random() - 0.5) * 5;
+            dataPoints.push(Math.max(20, Math.min(180, last + noise)));
+
+            requestAnimationFrame(draw);
+        }
+        draw();
+
+        function triggerChartSpike() {
+            // Force line up
+     
