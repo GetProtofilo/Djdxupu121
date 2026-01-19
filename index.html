@@ -3,330 +3,374 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Trade | Dashboard</title>
+    <title>NEXUS | Pro Terminal</title>
     <style>
         :root {
-            --bg-dark: #0f0c29;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --card-border: rgba(255, 255, 255, 0.1);
-            --accent: #00f260;
-            --accent-glow: rgba(0, 242, 96, 0.4);
+            --bg-dark: #050505;
+            --panel: #0a0a0a;
+            --accent: #00ffa3;
+            --accent-dim: rgba(0, 255, 163, 0.1);
+            --red: #ff4757;
+            --border: rgba(255, 255, 255, 0.08);
             --text-main: #ffffff;
-            --text-muted: #8b9bb4;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --text-dim: #666;
         }
 
         body {
-            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            background-color: var(--bg-dark);
             color: var(--text-main);
-            min-height: 100vh;
+            font-family: 'Inter', sans-serif; /* Standard modern font */
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100vh;
             overflow: hidden;
         }
 
-        /* Animated Background Mesh */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            z-index: -1;
-            animation: float 10s infinite ease-in-out;
-        }
-
-        .orb-1 { width: 300px; height: 300px; background: #764ba2; top: 10%; left: 20%; animation-delay: 0s; }
-        .orb-2 { width: 400px; height: 400px; background: #00f260; bottom: 10%; right: 10%; animation-delay: -5s; opacity: 0.4; }
-
-        /* Main Container */
-        .dashboard-container {
-            width: 90%;
-            max-width: 1200px;
-            height: 85vh;
-            background: rgba(16, 18, 27, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
+        /* ---------------- Layout ---------------- */
+        .dashboard {
+            width: 1100px;
+            height: 700px;
+            background: var(--panel);
+            border: 1px solid var(--border);
             border-radius: 24px;
             display: grid;
-            grid-template-columns: 250px 1fr 300px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            animation: fadeIn 1s ease-out forwards;
+            grid-template-columns: 280px 1fr;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 2;
         }
 
-        /* Sidebar */
+        /* ---------------- Sidebar ---------------- */
         .sidebar {
             padding: 2rem;
-            border-right: 1px solid var(--card-border);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
+            gap: 1.5rem;
         }
 
         .logo {
             font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 3rem;
-            background: linear-gradient(to right, #fff, #8b9bb4);
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 1rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            border-radius: 12px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            margin-bottom: 0.5rem;
-            cursor: pointer;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            background: var(--card-bg);
-            color: var(--text-main);
-            transform: translateX(5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        /* Main Content */
-        .main-content {
-            padding: 2.5rem;
-            overflow-y: auto;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 3rem;
         }
 
         .balance-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
-            padding: 2.5rem;
-            border-radius: 20px;
-            border: 1px solid var(--card-border);
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            transition: transform 0.4s ease;
-        }
-
-        .balance-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px -10px var(--accent-glow);
-            border-color: rgba(0, 242, 96, 0.3);
-        }
-
-        .balance-label {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-        }
-
-        .balance-amount {
-            font-size: 3rem;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .market-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .coin-card {
-            background: var(--card-bg);
+            background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+            border: 1px solid var(--border);
             padding: 1.5rem;
             border-radius: 16px;
-            border: 1px solid var(--card-border);
-            transition: all 0.3s ease;
-            cursor: pointer;
         }
 
-        .coin-card:hover {
-            background: rgba(255,255,255,0.08);
-            transform: scale(1.02);
-        }
+        .label { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .amount { font-size: 2.2rem; font-weight: 700; margin-top: 0.5rem; }
 
-        .coin-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .trend-up { color: var(--accent); }
-        .trend-down { color: #ff4757; }
-
-        /* Right Panel */
-        .right-panel {
-            background: rgba(0,0,0,0.2);
-            padding: 2rem;
-            border-left: 1px solid var(--card-border);
-        }
-
-        .transaction-list {
-            margin-top: 2rem;
-        }
-
-        .tx-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-            border-bottom: 1px solid var(--card-border);
-            animation: slideIn 0.5s ease-out forwards;
-            opacity: 0;
-        }
-
-        /* Animations */
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        /* Utility */
         .btn {
             background: var(--accent);
             color: #000;
             border: none;
-            padding: 0.8rem 1.5rem;
+            padding: 1rem;
             border-radius: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: 0.2s;
+            width: 100%;
+        }
+        .btn:hover { box-shadow: 0 0 20px var(--accent-dim); transform: translateY(-2px); }
+        .btn:active { transform: scale(0.98); }
+
+        .log-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
         }
 
-        .btn:hover {
-            box-shadow: 0 0 20px var(--accent-glow);
-            transform: translateY(-2px);
+        .log-item { margin-bottom: 8px; border-left: 2px solid var(--accent); padding-left: 10px; animation: slideIn 0.3s; }
+
+        /* ---------------- Main Chart Area ---------------- */
+        .main {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .chart-container {
+            flex-grow: 1;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        canvas { width: 100%; height: 100%; }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .trade-box {
+            background: var(--border);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .trade-box:hover { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+
+        /* ---------------- Modal & Overlay ---------------- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+        
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal {
+            background: #111;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal { transform: scale(1); }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            animation: spin 1s linear infinite;
+        }
+
+        /* ---------------- Animations ---------------- */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } }
+        
+        .profit-flash { animation: flash 1s; }
+        @keyframes flash { 
+            0% { box-shadow: 0 0 0 rgba(0,255,163,0); }
+            50% { box-shadow: 0 0 50px rgba(0,255,163,0.5); border-color: var(--accent); }
+            100% { box-shadow: 0 0 0 rgba(0,255,163,0); }
         }
 
     </style>
 </head>
 <body>
 
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
+    <div class="modal-overlay active" id="connectModal">
+        <div class="modal">
+            <div class="spinner" id="modalSpinner"></div>
+            <h3 id="modalTitle">Connecting to Wallet...</h3>
+            <p id="modalSub" style="color: #666; font-size: 0.9rem;">Verifying signature...</p>
+        </div>
+    </div>
 
-    <div class="dashboard-container">
+    <div class="dashboard">
         <aside class="sidebar">
-            <div class="logo">NEXUS</div>
-            <nav>
-                <div class="nav-item active">Dashboard</div>
-                <div class="nav-item">Market</div>
-                <div class="nav-item">Exchange</div>
-                <div class="nav-item">Wallet</div>
-                <div class="nav-item">Settings</div>
-            </nav>
-        </aside>
-
-        <main class="main-content">
-            <header class="header">
-                <h2>Overview</h2>
-                <button class="btn">Connect Wallet</button>
-            </header>
-
+            <div class="logo">NEXUS PRO</div>
+            
             <div class="balance-card">
-                <div class="balance-label">Total Portfolio Value</div>
-                <div class="balance-amount">$0.00</div>
-                <div style="margin-top: 1rem; color: var(--accent);">+0.00% (24h)</div>
+                <div class="label">Total Balance</div>
+                <div class="amount" id="displayBalance">0.00 SOL</div>
             </div>
 
-            <h3 style="margin-bottom: 1.5rem">Market Watch</h3>
-            <div class="market-grid">
-                <div class="coin-card">
-                    <div class="coin-header">
-                        <span>SOL / USD</span>
-                        <span class="trend-up">↗</span>
-                    </div>
-                    <h2>$145.20</h2>
-                    <p class="trend-up">+5.2%</p>
+            <button class="btn" onclick="deposit()">Deposit Funds</button>
+            <div class="log-area" id="logArea">
                 </div>
-                <div class="coin-card">
-                    <div class="coin-header">
-                        <span>BTC / USD</span>
-                        <span class="trend-down">↘</span>
-                    </div>
-                    <h2>$64,230</h2>
-                    <p class="trend-down">-1.2%</p>
+        </aside>
+
+        <main class="main">
+            <div class="chart-container" id="chartBox">
+                <canvas id="marketChart"></canvas>
+            </div>
+
+            <div class="controls">
+                <div class="trade-box" onclick="executeTrade('MEME')">
+                    <h3 style="margin:0">Buy $PEPE</h3>
+                    <p style="color: var(--text-dim); margin: 5px 0 0 0">High Volatility Pair</p>
                 </div>
-                <div class="coin-card">
-                    <div class="coin-header">
-                        <span>ETH / USD</span>
-                        <span class="trend-up">↗</span>
-                    </div>
-                    <h2>$3,450</h2>
-                    <p class="trend-up">+2.8%</p>
+                <div class="trade-box" onclick="executeTrade('SOL')">
+                    <h3 style="margin:0">Buy $BONK</h3>
+                    <p style="color: var(--text-dim); margin: 5px 0 0 0">Trending +12%</p>
                 </div>
             </div>
         </main>
-
-        <aside class="right-panel">
-            <h3>Recent Activity</h3>
-            <div class="transaction-list">
-                <div class="tx-item" style="animation-delay: 0.1s">
-                    <div>
-                        <div style="font-weight: 600">Connect</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted)">Wallet not connected</div>
-                    </div>
-                    <div>---</div>
-                </div>
-            </div>
-        </aside>
     </div>
 
     <script>
-        // Simple interactive element: Hover effect tracking for the balance card
-        const card = document.querySelector('.balance-card');
+        // ---------------- STATE ----------------
+        let balance = 0.00;
+        let isConnected = false;
         
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            card.style.background = `
-                radial-gradient(
-                    circle at ${x}px ${y}px, 
-                    rgba(255,255,255,0.1), 
-                    rgba(255,255,255,0.02) 40%
-                )
-            `;
-        });
+        // ---------------- CHART SETUP ----------------
+        const canvas = document.getElementById('marketChart');
+        const ctx = canvas.getContext('2d');
+        let chartData = [];
+        let width, height;
 
-        card.addEventListener('mouseleave', () => {
-            card.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02))';
-        });
+        function resize() {
+            width = canvas.width = canvas.parentElement.offsetWidth;
+            height = canvas.height = canvas.parentElement.offsetHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Initialize empty chart data
+        for(let i=0; i<50; i++) chartData.push(height/2);
+
+        function drawChart() {
+            ctx.clearRect(0, 0, width, height);
+            
+            // Grid lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+            ctx.beginPath();
+            for(let i=0; i<height; i+=40) { ctx.moveTo(0, i); ctx.lineTo(width, i); }
+            ctx.stroke();
+
+            // The Line
+            ctx.beginPath();
+            ctx.moveTo(0, chartData[0]);
+            
+            // Smooth curve
+            for (let i = 1; i < chartData.length - 2; i++) {
+                const xc = (i * (width/50) + (i + 1) * (width/50)) / 2;
+                const yc = (chartData[i] + chartData[i + 1]) / 2;
+                ctx.quadraticCurveTo(i * (width/50), chartData[i], xc, yc);
+            }
+            
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = '#00ffa3';
+            ctx.shadowColor = '#00ffa3';
+            ctx.shadowBlur = 15;
+            ctx.stroke();
+            
+            // Fill area under line
+            ctx.lineTo(width, height);
+            ctx.lineTo(0, height);
+            ctx.fillStyle = 'rgba(0, 255, 163, 0.05)';
+            ctx.fill();
+
+            requestAnimationFrame(drawChart);
+        }
+        drawChart();
+
+        // Simulate live market movement
+        setInterval(() => {
+            // Shift data left
+            chartData.shift();
+            // Add new random point (small fluctuation)
+            let last = chartData[chartData.length-1];
+            let noise = (Math.random() - 0.5) * 10;
+            // Keep within bounds
+            let newPoint = Math.max(20, Math.min(height-20, last + noise));
+            chartData.push(newPoint);
+        }, 100);
+
+        // ---------------- LOGIC ----------------
+
+        // 1. Fake Wallet Connect Sequence
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('modalTitle').innerText = "Wallet Connected";
+                document.getElementById('modalSub').innerText = "0x7f...3A92";
+                document.getElementById('modalSpinner').style.borderColor = "#00ffa3";
+                document.getElementById('modalSpinner').style.animation = "none";
+                
+                setTimeout(() => {
+                    document.getElementById('connectModal').classList.remove('active');
+                    isConnected = true;
+                    log("Wallet connected: Phantom");
+                }, 1000);
+            }, 2000); // 2 second delay for realism
+        };
+
+        function updateUI() {
+            document.getElementById('displayBalance').innerText = balance.toFixed(2) + " SOL";
+        }
+
+        function log(msg) {
+            const area = document.getElementById('logArea');
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            area.prepend(div);
+        }
+
+        function deposit() {
+            if(!isConnected) return;
+            let amount = 10;
+            balance += amount;
+            updateUI();
+            log(`Deposited ${amount} SOL`);
+        }
+
+        function executeTrade(pair) {
+            if(balance < 2) {
+                alert("Insufficient funds! Deposit first.");
+                return;
+            }
+
+            // Deduct cost
+            balance -= 2;
+            updateUI();
+            log(`Bought ${pair} for 2.00 SOL...`);
+
+            // Flash visual effect
+            document.getElementById('chartBox').style.opacity = "0.7";
+
+            setTimeout(() => {
+                // Simulate PROFIT
+                let profit = 2 + (Math.random() * 2); // 2 to 4 SOL return
+                balance += profit;
+                updateUI();
+                log(`Sold ${pair} | Profit: +${(profit-2).toFixed(2)} SOL 🚀`);
+                
+                // Trigger visual spike in chart
+                triggerChartSpike();
+                
+                // CSS flash
+                document.getElementById('chartBox').classList.add('profit-flash');
+                document.getElementById('chartBox').style.opacity = "1";
+                setTimeout(() => document.getElementById('chartBox').classList.remove('profit-flash'), 1000);
+            }, 1500);
+        }
+
+        function triggerChartSpike() {
+            // Force the last 10 points of the chart to go UP
+            let last = chartData[chartData.length-1];
+            for(let i=40; i<50; i++) {
+                chartData[i] = last - (i-40) * 10; // Move Y up (which is lower value in canvas)
+            }
+        }
     </script>
 </body>
 </html>
